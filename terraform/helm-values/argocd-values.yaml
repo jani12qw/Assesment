@@ -1,0 +1,41 @@
+nameOverride: argocd
+createClusterRoles: true
+crds:
+  install: true
+configs:
+  cm:
+    create: true
+    application.resourceTrackingMethod: annotation  
+    statusbadge.enabled: true
+  params:
+    create: true
+    server.insecure: true
+redis-ha:
+  enabled: true
+
+controller:
+  replicas: 1
+
+server:
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+  ingress:
+    enabled: true
+    controller: generic
+    annotations:
+        alb.ingress.kubernetes.io/scheme: internet-facing
+        alb.ingress.kubernetes.io/backend-protocol: HTTP
+        alb.ingress.kubernetes.io/target-type: ip
+    ingressClassName: "alb"
+    path: /
+    pathType: Prefix
+    tls: false
+
+repoServer:
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+
+applicationSet:
+  replicas: 1

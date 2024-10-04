@@ -1,0 +1,115 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template to create OIDC provider for GitHub, assign roles with managed admin policy and ECR policy, and create S3 bucket.
+
+Parameters:
+  S3BucketName:
+    Type: String
+    Description: The name of the S3 bucket to create
+    Default: my-github-oidc-bucket
+
+  GitHubOrganization:
+    Type: String
+    Description: Your GitHub organization name
+
+  GitHubRepo:
+    Type: String
+    Description: Your GitHub repository name
+
+  GeneralAccessRoleName:
+    Type: String
+    Description: The name of the IAM role for general access
+    Default: GitHubOIDCRole
+
+  ECRPushRoleName:
+    Type: String
+    Description: The name of the IAM role for ECR push access
+    Default: GitHubECRPushRole
+
+Resources:
+  # OIDC Provider
+  GitHubOIDCProvider:
+    Type: AWS::IAM::OIDCProvider
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ClientIdList:
+        - sts.amazonaws.com
+      ThumbprintList:
+        - d89e3bd43d5d909b47a18977aa9d5ce36cee184c
+
+  # IAM Role for General Access
+  GitHubOIDCRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref GeneralAccessRoleName
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !Ref GitHubOIDCProvider
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringLike:
+                token.actions.githubusercontent.com:sub: !Sub "repo:${GitHubOrganization}/${GitHubRepo}:*"
+              StringEquals:
+                token.actions.githubusercontent.com:aud: !Sub "sts.amazonaws.com" 
+
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+
+  # IAM Role for ECR Push Access
+  GitHubECRPushRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref ECRPushRoleName
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !Ref GitHubOIDCProvider
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringLike:
+                token.actions.githubusercontent.com:sub: !Sub "repo:${GitHubOrganization}/${GitHubRepo}:*"
+              StringEquals:
+                token.actions.githubusercontent.com:aud: !Sub "sts.amazonaws.com" 
+
+      Policies:
+        - PolicyName: ECRPushPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecr:PutImage
+                  - ecr:InitiateLayerUpload
+                  - ecr:UploadLayerPart
+                  - ecr:CompleteLayerUpload
+                  - ecr:ListImages
+                Resource: "*"
+
+  # S3 Bucket
+  GitHubOIDCS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref S3BucketName
+      VersioningConfiguration:
+        Status: Enabled
+
+Outputs:
+  OIDCProviderARN:
+    Description: ARN of the created OIDC provider
+    Value: !Ref GitHubOIDCProvider
+
+  RoleARN:
+    Description: ARN of the created IAM Role for general access
+    Value: !GetAtt GitHubOIDCRole.Arn
+
+  ECRPushRoleARN:
+    Description: ARN of the created IAM Role for ECR push access
+    Value: !GetAtt GitHubECRPushRole.Arn
+
+  S3BucketName:
+    Description: Name of the created S3 bucket
+    Value: !Ref GitHubOIDCS3Bucket
