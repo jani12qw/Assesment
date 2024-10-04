@@ -21,8 +21,8 @@ resource "aws_ecr_repository" "my_ecr_repo" {
   }
 }
 
-module "irsa_application arn" {
-  source  = "../../terraform-aws-irsa"
+module "irsa_application" {
+  source  = "./terraform-aws-irsa"
 
   create_kubernetes_namespace       = true
   create_kubernetes_service_account = true
@@ -33,7 +33,6 @@ module "irsa_application arn" {
   eks_oidc_provider_arn             = local.eks_oidc_provider_arn
   irsa_iam_policies = concat(
     ["arn:${local.aws_partition_id}:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess"],
-    local.cni_ipv6_policy,
     try(var.addon_config.additional_iam_policies, [])
   )
 }
