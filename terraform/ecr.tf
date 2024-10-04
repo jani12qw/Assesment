@@ -31,8 +31,6 @@ module "irsa_application" {
   irsa_iam_role_path                = "/"
   eks_cluster_id                    = local.eks_cluster_id
   eks_oidc_provider_arn             = local.eks_oidc_provider_arn
-  irsa_iam_policies = concat(
-    ["arn:${local.aws_partition_id}:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess"],
-    try(var.addon_config.additional_iam_policies, [])
-  )
+  irsa_iam_policies = ["arn:${local.aws_partition_id}:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess"]
+
 }
