@@ -82,11 +82,12 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - ecr:PutImage
-                  - ecr:InitiateLayerUpload
-                  - ecr:UploadLayerPart
                   - ecr:CompleteLayerUpload
-                  - ecr:ListImages
+                  - ecr:UploadLayerPart
+                  - ecr:InitiateLayerUpload
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:PutImage
+                  - ecr:GetAuthorizationToken
                 Resource: "*"
 
   # S3 Bucket

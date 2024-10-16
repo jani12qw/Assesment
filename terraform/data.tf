@@ -6,6 +6,7 @@ data "aws_partition" "current" {}
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
+
 data "aws_availability_zones" "available" {}
 
 
@@ -16,6 +17,7 @@ data "aws_eks_addon_version" "latest" {
   kubernetes_version = local.cluster_version
   most_recent        = true
 }
+
 
 
 data "aws_ami" "eks_default" {

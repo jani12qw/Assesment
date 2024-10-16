@@ -10,7 +10,7 @@ module "eks_blueprints_kubernetes_addons" {
   eks_oidc_provider    = module.eks.oidc_provider
   eks_cluster_version  = module.eks.cluster_version
   enable_argocd        = true
-  # This example shows how to set default ArgoCD Admin Password ubsing SecretsManager with Helm Chart set_sensitive values.
+  # This example shows  how to set default ArgoCD Admin Password ubsing SecretsManager with Helm Chart set_sensitive values.
   argocd_helm_config = {
     values = [file("${path.module}/helm-values/argocd-values.yaml")]
     set_sensitive = [
@@ -18,6 +18,7 @@ module "eks_blueprints_kubernetes_addons" {
         name  = "configs.secret.argocdServerAdminPassword"
         value = bcrypt_hash.argo.id
       }
+      
     ]
   }
   

@@ -63,7 +63,7 @@ module "eks" {
       max_size     = 3
       desired_size = 1
       force_update_version = true
-      instance_types = ["m5.large"]   #### t2 micro in free tier
+      instance_types = ["m5.large"]
       update_config = {
         max_unavailable_percentage = 33 # or set `max_unavailable`
       }

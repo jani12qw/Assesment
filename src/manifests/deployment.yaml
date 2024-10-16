@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: my-app
-  namespace: demo-app
   labels:
     app: my-app
 spec:
@@ -19,11 +18,10 @@ spec:
         fsGroup: 2000  # Specify a GID for shared volumes
         runAsUser: 1000  # Specify a UID for the container
         runAsGroup: 1000  # Specify a GID for the container
-        allowPrivilegeEscalation: false  # Prevent privilege escalation
+      serviceAccountName: demo-app-sa  # Moved to the correct position j
       containers:
-        serviceAccountName: demo-app-sa
         - name: my-app-container
-          image: <your-docker-image>  # Replace with your image
+          image: 741448916150.dkr.ecr.us-east-1.amazonaws.com/my-ecr-repo:6c2d2cbf21a008009546af3b584e682425f99ad8  # Replace with your image
           ports:
             - containerPort: 3000  # Use a different port
           resources:
@@ -33,18 +31,6 @@ spec:
             limits:
               cpu: "500m"  # Adjust based on your needs
               memory: "512Mi"  # Adjust based on your needs
-          livenessProbe:
-            httpGet:
-              path: /health  # Adjust to your app's health check endpoint
-              port: 8080
-            initialDelaySeconds: 30
-            periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /health  # Adjust to your app's readiness check endpoint
-              port: 8080
-            initialDelaySeconds: 5
-            periodSeconds: 10
           env:
             - name: ENVIRONMENT
               value: production  # Set environment variables as needed
