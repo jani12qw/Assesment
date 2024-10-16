@@ -21,7 +21,7 @@ spec:
       serviceAccountName: demo-app-sa  # Moved to the correct position j
       containers:
         - name: my-app-container
-          image: 741448916150.dkr.ecr.us-east-1.amazonaws.com/my-ecr-repo:6c2d2cbf21a008009546af3b584e682425f99ad8  # Replace with your image
+          image: 841162673540.dkr.ecr.us-east-1.amazonaws.com/my-ecr-repo:v0.0.1
           ports:
             - containerPort: 3000  # Use a different port
           resources:
